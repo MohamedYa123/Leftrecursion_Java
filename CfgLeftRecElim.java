@@ -34,29 +34,37 @@ public class CfgLeftRecElim {
 		// TODO Auto-generated method stub
 		return finalsolution;
 	}
-	ArrayList<String> analyse(String variable,String formula,ArrayList<String> variables,ArrayList<String> formulas)
+	Boolean miniEncrypt;
+	boolean checkdash(String variable,String formula,ArrayList<String> variables,ArrayList<String> formulas){
+		boolean defFF=false;
+		for(var a : formula.split(",")){
+			if(a.startsWith(variable)){
+				miniEncrypt=true;
+				return true;
+			}
+			else if(variables.contains(a.substring(0,1))){
+				int index=variables.indexOf(a.substring(0,1));
+				defFF= checkdash(variable, formulas.get(index), variables, formulas);
+				miniEncrypt=true;
+				if(defFF==true){
+					return defFF;
+				}
+			}
+		}
+		return defFF;
+	}
+	ArrayList<String> analyse(String variable,String formula,ArrayList<String> variables,ArrayList<String> formulas,boolean defaultencrypt)
 	{
 		ArrayList arr=new ArrayList();
 		var listformulas=formula.split(",");
 		var rightformula="";
 		var leftformula="";
 		boolean encrypt=false;
-		for (String formulaGen : listformulas)
-		{
-			String firstvariable=formulaGen.substring(0,1);
-			if(variables.contains(firstvariable))
-			{
-				encrypt=true;
-				break;
-			}
-			else if(firstvariable.contains(variable))
-			{
-				encrypt=true;
-				break;
-			}
-		}
-		
-		if(!encrypt){
+		boolean encrypt2=false;
+		miniEncrypt=false;
+		encrypt2=checkdash(variable, formula, variables, formulas);
+		encrypt=miniEncrypt;
+		if(!encrypt&&!defaultencrypt){
 			rightformula+=","+formula;
 			leftformula=",";
 		}
@@ -73,7 +81,7 @@ public class CfgLeftRecElim {
 					newformula+=newf+formulaGen.substring(1)+",";
 				}
 				newformula=newformula.substring(0,newformula.length()-1);
-				var timedformula=analyse(variable, newformula, variables, formulas);
+				var timedformula=analyse(variable, newformula, variables, formulas,encrypt2);
 				
 				rightformula+=","+timedformula.get(0);
 				if(timedformula.get(1)!="")
@@ -83,12 +91,21 @@ public class CfgLeftRecElim {
 			}
 			else if(firstvariable.contains(variable))
 			{
-				leftformula+=","+formulaGen.substring(1)+variable+"'";
+				leftformula+=","+formulaGen.substring(1);
+				if(true){
+					leftformula+=variable+"'";
+				}
 			}
 			else{
-				rightformula+=","+formulaGen+variable+"'";
+				rightformula+=","+formulaGen;
+				if(encrypt2||defaultencrypt){
+					rightformula+=variable+"'";
+				}
 			}
 		}
+		}
+		if(leftformula.length()==0){
+			leftformula=",";
 		}
 		arr.add(rightformula.substring(1));
 		arr.add(leftformula.substring(1));
@@ -119,7 +136,7 @@ public class CfgLeftRecElim {
 		var allvariables=new ArrayList();
 		int i=0;
 		for(var a: sides){
-			var sol=analyse(leftsideVariables[i], a, variables, formulas);
+			var sol=analyse(leftsideVariables[i], a, variables, formulas,false);
 			solutionsleft.add(sol.get(0));
 			solutionsright.add(sol.get(1));
 			if(sol.get(1)!=""){
