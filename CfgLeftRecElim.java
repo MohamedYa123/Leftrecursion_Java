@@ -129,11 +129,11 @@ public class CfgLeftRecElim {
 			sides[ind]=sd.replace(vb+"/", "");
 		}
 		//now analyse
-		var solutionsleft=new ArrayList();
-		var solutionsright=new ArrayList();
-		var formulas=new ArrayList();
-		var variables=new ArrayList();
-		var allvariables=new ArrayList();
+		var solutionsleft=new ArrayList<String>();
+		var solutionsright=new ArrayList<String>();
+		var formulas=new ArrayList<String>();
+		var variables=new ArrayList<String>();
+		var allvariables=new ArrayList<String>();
 		int i=0;
 		for(var a: sides){
 			var sol=analyse(leftsideVariables[i], a, variables, formulas,false);
